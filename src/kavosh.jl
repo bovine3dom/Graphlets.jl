@@ -14,7 +14,8 @@
 
 module kavosh
     import LightGraphs
-    include("nauty.jl")
+    import Nauty
+    const nauty = Nauty
     const lg = LightGraphs
     # IterTools is 10x-2x faster than Combinatorics
     # Make sure it uses revolving door algorithm

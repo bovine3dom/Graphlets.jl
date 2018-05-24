@@ -62,7 +62,7 @@ module kavosh
             #push!(answers,temp)
             temp = vcat(values(s)...)
             # Most of memory usage is in the G[temp] call
-            k = nauty.canonical_form(G[temp])[1]
+            k = nauty.canonical_form(G[temp]).canong
             # Human readable alternative
             #k = nauty.label_to_adj(nauty.canonical_form(G[temp])[1],3)
             answers[k] = get(answers,k,0) + 1

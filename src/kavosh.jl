@@ -42,7 +42,10 @@ module kavosh
             S[1] = [u]
             Enumerate_Vertex(G,u,S,k-1,1,Visited,answers)
         end
-        if !norm return answers end
+        answers = norm ? normalise(answers) : answers
+    end
+
+    function normalise(answers)
         normalisation = sum(values(answers))
         d = Dict()
         for (key,v) in answers

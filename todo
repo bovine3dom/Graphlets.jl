@@ -1,40 +1,60 @@
-nrtn -> coloredG
-
-ColoredGraph type
-
-juliafmt
-
-plotnauty obsoleted?
-
-ColoredG
-
----
+All
 
 Documentation
-Smaller APIs?
+	Docstrings are quite easy.
+	Examples (jldoctest/Documenter.jl) would be nice
+Strip bad comments
+Check APIs
 explicitly export things
+	export affects `using` and not much else
 
 ---
 
 Motifs.jl
 
-Doesn't accept ColoredGraphs
-   - answers[k]
-   - Nauty doesn't know about all the colours in G.
-      - Can add a key (disconnected node of each colour)
+New features:
+	Accept coloredG
+	   - answers[k] needs to hash on canong, partition and label
+	   - Nauty doesn't know about all the colours in G.
+	      - Can add a key (disconnected node of each colour)
 
-kavosh as implementation detail?
+Tidying:
+	Strip bad comments
+	s/nauty/Nauty
+	Hide kavosh as implementation detail?
 
-s/nauty/Nauty
-normalise:
-   distribution of motifs
+Documentation:
 
-Getmotifs:
+	normalise:
 
-Enumerate all connected subgraphs of size k from G efficiently
-Return frequency of each isomorphism class present
+	distribution of motifs
 
-Optionally "normalise"
-   - lots of different methods incl. z score
+	Getmotifs:
+
+	Enumerate all connected subgraphs of size k from G efficiently
+	Return frequency of each isomorphism class present
+
+	Optionally "normalise"
+	   - lots of different methods incl. z score
 
 Extension stuff
+   - Enumerate all subgraphs but don't filter by isomorphic class (for metagraphs)
+   - Generator
+
+
+---
+
+Nauty.jl
+
+Move colored nauty code to here. Make polymorphic functions. Make baked colored canonical form
+
+---
+
+ColoredGraphs.jl
+
+ColoredGraph type
+
+Converter:
+	nrtn -> ColoredGraph
+
+Obsolete plotnauty.

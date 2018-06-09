@@ -17,25 +17,20 @@ module kavosh
     import Nauty
     const nauty = Nauty
     const lg = LightGraphs
-    # IterTools is 10x-2x faster than Combinatorics
-    # Make sure it uses revolving door algorithm
     import IterTools
     const it = IterTools
 
-    # Find all subgraphs of size k in G
-    # mild breaking change below: verbose now a keyword argument
+    # Find all connected subgraphs of size k in G
     function getsubgraphs(G,k;norm=true, verbose=false)::Dict{Array{UInt64,1},Float64}
         # No speedup compared to []
         answers = Dict{Array{UInt64,1},Int64}()
         Visited = zeros(Bool,lg.nv(G))
         # For each node u
         for u in lg.vertices(G)
-            if verbose #&& (mod(u,10) == 0)
+            if verbose
                 print("\r", round(u/lg.nv(G)*100), "% done")
             end
-            # 3x speedup compared to Dict(). UInt8 uses ~5% less memory but is ~7% slower.
             S = Dict{Int64,Array{Int64,1}}()
-            # "Global" variable Visited
             Visited .= false
             Visited[u] = true
             # S are parents?
@@ -59,14 +54,15 @@ module kavosh
         # If there are no more nodes to choose, terminate
         s = copy(S) # Stops shorter trees from accidentally sharing data. Must be a neater way of doing this.
         if Remainder == 0
-            # Next step: olieshomegrowncannonlabeller(lg.adjacency_matrix(lg.induced_subgraph(G,temp)))
-            # This vcat line makes programme ~20% slower
-            #temp = vcat(values(s)...)
-            #push!(answers,temp)
             temp = vcat(values(s)...)
-            # Most of memory usage is in the G[temp] call
+            # Most of memory and time usage is in the G[temp] call
             # Quicker if we bake in options
             #= k = nauty.canonical_form(G[temp]).canong =#
+
+            # Adding colouring - need to include partition with this somehow;
+            # could probably just append it.
+            
+            # When we include support for complicated colours, we'll need to add a key of coloured nodes to each subgraph so that Nauty doesn't think that colours can be swapped
             k = nauty.baked_canonical_form(G[temp]).canong
             # Human readable alternative
             #k = nauty.label_to_adj(nauty.canonical_form(G[temp])[1],3)

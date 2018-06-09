@@ -10,14 +10,13 @@ module Motifs
     # Notes
     # canonical labelling -> graph: (where nodes is number of nodes in subgraph)
     # a = BitArray(64,[nodes])
-    # a.chunks = nauty.canonical_labelling(g)[1]
+    # a.chunks = Nauty.canonical_labelling(g)[1]
     # Array{Int64,2}(a[end-nodes+1:end,:])
 
     module kavosh
         import LightGraphs
-        import Nauty
-        const nauty = Nauty
         const lg = LightGraphs
+        import Nauty
         import IterTools
         const it = IterTools
 
@@ -58,15 +57,15 @@ module Motifs
                 temp = vcat(values(s)...)
                 # Most of memory and time usage is in the G[temp] call
                 # Quicker if we bake in options
-                #= k = nauty.canonical_form(G[temp]).canong =#
+                #= k = Nauty.canonical_form(G[temp]).canong =#
 
                 # Adding colouring - need to include partition with this somehow;
                 # could probably just append it.
                 
                 # When we include support for complicated colours, we'll need to add a key of coloured nodes to each subgraph so that Nauty doesn't think that colours can be swapped
-                k = nauty.baked_canonical_form(G[temp]).canong
+                k = Nauty.baked_canonical_form(G[temp]).canong
                 # Human readable alternative
-                #k = nauty.label_to_adj(nauty.canonical_form(G[temp])[1],3)
+                #k = Nauty.label_to_adj(Nauty.canonical_form(G[temp])[1],3)
                 answers[k] = get(answers,k,0) + 1
                 return
             else
@@ -120,7 +119,7 @@ module Motifs
 
 Compute the frequencies of the unique connected subgraphs of size `k` in `G`.
 
-The dict labels are adjacency matrices in the Nauty format. Use `Nauty.label_to_adj` to convert a label to a LightGraphs compatible adjacency matrix.
+The dict labels are adjacency matrices in the nauty format. Use `Nauty.label_to_adj` to convert a label to a LightGraphs compatible adjacency matrix.
 """
 getmotifs = kavosh.getmotifs
 

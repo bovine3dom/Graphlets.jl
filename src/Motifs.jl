@@ -21,8 +21,8 @@ module Motifs
         import IterTools
         const it = IterTools
 
-        # Find all connected subgraphs of size k in G
-        function getsubgraphs(G,k;norm=true, verbose=false)::Dict{Array{UInt64,1},Float64}
+        # Find frequencies of all unique connected subgraphs of size k in G
+        function getmotifs(G,k;norm=true, verbose=false)::Dict{Array{UInt64,1},Float64}
             # No speedup compared to []
             answers = Dict{Array{UInt64,1},Int64}()
             Visited = zeros(Bool,lg.nv(G))
@@ -115,7 +115,14 @@ module Motifs
         # Questions: what's the difference between ValList and Visited?
     end
 
-getmotifs = kavosh.getsubgraphs
+"""
+    getmotifs(G,k;norm=true, verbose=false)::Dict{Array{UInt64,1},Float64}
+
+Compute the frequencies of the unique connected subgraphs of size `k` in `G`.
+
+The dict labels are adjacency matrices in the Nauty format. Use `Nauty.label_to_adj` to convert a label to a LightGraphs compatible adjacency matrix.
+"""
+getmotifs = kavosh.getmotifs
 
 # TODO:
 #       - move normalisation out of subgraphs, support different methods

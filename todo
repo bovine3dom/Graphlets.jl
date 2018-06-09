@@ -3,7 +3,7 @@ All
 Documentation
 	Docstrings are quite easy.
 	Examples (jldoctest/Documenter.jl) would be nice
-Strip bad comments
+Strip bad comments - progress
 Check APIs
 explicitly export things
 	export affects `using` and not much else

@@ -16,12 +16,13 @@ module Motifs
     module kavosh
         import LightGraphs
         const lg = LightGraphs
+        import ColoredGraphs
         import Nauty
         import IterTools
         const it = IterTools
 
         # Find frequencies of all unique connected subgraphs of size k in G
-        function getmotifs(G,k;norm=true, verbose=false)::Dict{Array{UInt64,1},Float64}
+        function getmotifs(G,k; norm=true, verbose=false, colored=false)::Dict{Array{UInt64,1},Float64}
             # No speedup compared to []
             answers = Dict{Array{UInt64,1},Int64}()
             Visited = zeros(Bool,lg.nv(G))
@@ -35,7 +36,7 @@ module Motifs
                 Visited[u] = true
                 # S are parents?
                 S[1] = [u]
-                Enumerate_Vertex(G,u,S,k-1,1,Visited,answers)
+                Enumerate_Vertex(G,u,S,k-1,1,Visited,answers; colored=colored)
             end
             norm ? normalise(answers) : answers
         end
@@ -50,7 +51,7 @@ module Motifs
         end
 
         # Take graph, root vertex, "Selection": the vertices that are part of the current motif, the number of nodes left to choose
-        function Enumerate_Vertex(G::GraphType,u::Int64,S,Remainder::Int64,i::Int64,Visited::Array{Bool,1},answers)::Void where GraphType <: lg.SimpleGraphs.AbstractSimpleGraph
+        function Enumerate_Vertex(G::GraphType,u::Int64,S,Remainder::Int64,i::Int64,Visited::Array{Bool,1},answers; colored=false)::Void where GraphType <: lg.AbstractGraph
             # If there are no more nodes to choose, terminate
             s = copy(S) # Stops shorter trees from accidentally sharing data. Must be a neater way of doing this.
             if Remainder == 0
@@ -63,7 +64,8 @@ module Motifs
                 # could probably just append it.
                 
                 # When we include support for complicated colours, we'll need to add a key of coloured nodes to each subgraph so that Nauty doesn't think that colours can be swapped
-                k = Nauty.baked_canonical_form(G[temp]).canong
+                canonfunc = colored ? ColoredGraphs.nauty : Nauty.baked_canonical_form
+                k = canonfunc(G[temp]).canong
                 # Human readable alternative
                 #k = Nauty.label_to_adj(Nauty.canonical_form(G[temp])[1],3)
                 answers[k] = get(answers,k,0) + 1
@@ -80,7 +82,7 @@ module Motifs
                         # Might get a performance boost if s was just a list of numbers, and Parents was stored separately.
                         s[i+1] = combination
                         # and Remainder-k from other depths
-                        Enumerate_Vertex(G,u,s,Remainder-k,i+1,Visited,answers)
+                        Enumerate_Vertex(G,u,s,Remainder-k,i+1,Visited,answers; colored=colored)
                         # Repeat for all combinations of k nodes at current depth
                     end
                 end
@@ -93,7 +95,7 @@ module Motifs
 
         # Take graph, selected vertices of previous layer, and the root vertex, return vertices that could form unique motifs
         # This is the bit where the labels are considered. Only labels bigger than root are considered. This is to stop double counting.
-        function Validate(G::GraphType,Parents::Array{Int64,1},u::Int64,Visited::Array{Bool,1})::Array{Int64,1} where GraphType <: lg.SimpleGraphs.AbstractSimpleGraph
+        function Validate(G::GraphType,Parents::Array{Int64,1},u::Int64,Visited::Array{Bool,1})::Array{Int64,1} where GraphType <: lg.AbstractGraph
             ValList = Array{Int64,1}()
             # For all of the immediate neighbours of the parents
             for v in Parents

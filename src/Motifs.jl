@@ -21,10 +21,23 @@ module Motifs
         import IterTools
         const it = IterTools
 
+        struct MotifSig
+            canong::Array{UInt64,1}
+            partition::Array{Int32,1}
+        end
+        function Base.hash(m::MotifSig)
+            return hash((m.canong,m.partition))
+        end
+        
+        # Not convinced partition can be different for same canong
+        # ... so why are we storing partition?
+        function Base.:(==)(a::MotifSig, b::MotifSig)
+            return a.canong == b.canong #&& a.partition == b.partition
+        end
         # Find frequencies of all unique connected subgraphs of size k in G
-        function getmotifs(G,k; norm=true, verbose=false, colored=false)::Dict{Tuple{Array{UInt64,1},Array{Int32,1}},Float64}
+        function getmotifs(G,k; norm=true, verbose=false, colored=false)::Dict{MotifSig,Float64}
             # No speedup compared to []
-            answers = Dict{Tuple{Array{UInt64,1},Array{Int32,1}},Int64}()
+            answers = Dict{MotifSig,Int64}()
             Visited = zeros(Bool,lg.nv(G))
             # For each node u
             for u in lg.vertices(G)
@@ -68,7 +81,7 @@ module Motifs
                 k = canonfunc(G[temp])
                 # Human readable alternative
                 #k = Nauty.label_to_adj(Nauty.canonical_form(G[temp])[1],3)
-                answers[(k.canong,k.partition)] = get(answers,k,0) + 1
+                answers[MotifSig(k.canong,k.partition)] = get(answers,k,0) + 1
                 return
             else
                 # Find vertices that could be part of unique motifs

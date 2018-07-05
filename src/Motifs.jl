@@ -29,10 +29,8 @@ module Motifs
             return hash((m.canong,m.partition))
         end
         
-        # Not convinced partition can be different for same canong
-        # ... so why are we storing partition?
         function Base.:(==)(a::MotifSig, b::MotifSig)
-            return a.canong == b.canong #&& a.partition == b.partition
+            return a.canong == b.canong && a.partition == b.partition
         end
         # Find frequencies of all unique connected subgraphs of size k in G
         function getmotifs(G,k; norm=true, verbose=false, colored=false)::Dict{MotifSig,Float64}

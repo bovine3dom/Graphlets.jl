@@ -79,7 +79,8 @@ module Motifs
                 k = canonfunc(G[temp])
                 # Human readable alternative
                 #k = Nauty.label_to_adj(Nauty.canonical_form(G[temp])[1],3)
-                answers[MotifSig(k.canong,k.partition)] = get(answers,k,0) + 1
+                ms = MotifSig(k.canong,k.partition)
+                answers[ms] = get(answers,ms,0) + 1
                 return
             else
                 # Find vertices that could be part of unique motifs

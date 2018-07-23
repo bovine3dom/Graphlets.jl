@@ -75,7 +75,7 @@ module Motifs
                 # could probably just append it.
                 
                 # When we include support for complicated colours, we'll need to add a key of coloured nodes to each subgraph so that Nauty doesn't think that colours can be swapped
-                canonfunc = colored ? ColoredGraphs.nauty_old : Nauty.baked_canonical_form
+                canonfunc = colored ? ColoredGraphs.nauty : Nauty.baked_canonical_form
                 k = canonfunc(G[temp])
                 # Human readable alternative
                 #k = Nauty.label_to_adj(Nauty.canonical_form(G[temp])[1],3)

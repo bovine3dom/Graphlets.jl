@@ -33,7 +33,7 @@ module Motifs
             return a.canong == b.canong && a.partition == b.partition
         end
         # Find frequencies of all unique connected subgraphs of size k in G
-        function getmotifs(G,k; norm=true, verbose=false, colored=false)::Dict{MotifSig,Float64}
+        function getmotifs(G,k; norm=true, verbose=false, colored=false, egonet=false)::Dict{MotifSig,Float64}
             # No speedup compared to []
             answers = Dict{MotifSig,Int64}()
             Visited = zeros(Bool,lg.nv(G))
@@ -47,7 +47,7 @@ module Motifs
                 Visited[u] = true
                 # S are parents?
                 S[1] = [u]
-                Enumerate_Vertex(G,u,S,k-1,1,Visited,answers; colored=colored)
+                Enumerate_Vertex(G,u,S,k-1,1,Visited,answers; colored=colored,egonet=egonet)
             end
             norm ? normalise(answers) : answers
         end
@@ -62,7 +62,7 @@ module Motifs
         end
 
         # Take graph, root vertex, "Selection": the vertices that are part of the current motif, the number of nodes left to choose
-        function Enumerate_Vertex(G::GraphType,u::Int64,S,Remainder::Int64,i::Int64,Visited::Array{Bool,1},answers; colored=false)::Void where GraphType <: lg.AbstractGraph
+        function Enumerate_Vertex(G::GraphType,u::Int64,S,Remainder::Int64,i::Int64,Visited::Array{Bool,1},answers; colored=false, egonet=false)::Void where GraphType <: lg.AbstractGraph
             # If there are no more nodes to choose, terminate
             s = copy(S) # Stops shorter trees from accidentally sharing data. Must be a neater way of doing this.
             if Remainder == 0
@@ -76,7 +76,23 @@ module Motifs
                 
                 # When we include support for complicated colours, we'll need to add a key of coloured nodes to each subgraph so that Nauty doesn't think that colours can be swapped
                 canonfunc = colored ? ColoredGraphs.nauty : Nauty.baked_canonical_form
-                k = canonfunc(G[temp])
+
+                # Some extreme witchcraft going on here
+                if egonet
+                    g, map = lg.induced_subgraph(G,temp)
+                    egoid = findfirst(x->x==1,map)
+                    try
+                        k = canonfunc(g;egonet=true,egoid)
+                        # Get a bounds error here, but if you catch the throw,
+                        # ColoredGraphs.nauty() on it works fine.
+                        # : S
+                    catch error
+                        throw((error,g,egoid))
+                    end
+                    println(k)
+                else
+                    k = canonfunc(lg.induced_subgraph(G,temp)[1])
+                end
                 # Human readable alternative
                 #k = Nauty.label_to_adj(Nauty.canonical_form(G[temp])[1],3)
                 ms = MotifSig(k.canong,k.partition)
@@ -94,7 +110,7 @@ module Motifs
                         # Might get a performance boost if s was just a list of numbers, and Parents was stored separately.
                         s[i+1] = combination
                         # and Remainder-k from other depths
-                        Enumerate_Vertex(G,u,s,Remainder-k,i+1,Visited,answers; colored=colored)
+                        Enumerate_Vertex(G,u,s,Remainder-k,i+1,Visited,answers; colored=colored,egonet=egonet)
                         # Repeat for all combinations of k nodes at current depth
                     end
                 end

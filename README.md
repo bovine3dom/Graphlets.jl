@@ -2,7 +2,7 @@
 
 Interface:
 
-`Motif.getmotifs(g,k; norm=true, verbose=false)`
+`Motif.getmotifs(G,k; norm=true, verbose=false)`
 
 Gets the frequencies of unique subgraphs of size k appearing in G.
 

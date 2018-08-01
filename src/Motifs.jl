@@ -153,6 +153,8 @@ The dict labels are adjacency matrices in the nauty format. Use `Nauty.label_to_
 """
 getmotifs = kavosh.getmotifs
 
+MotifSig = kavosh.MotifSig
+
 # TODO:
 #       - move normalisation out of subgraphs, support different methods
 #       - support different backends

@@ -8,7 +8,7 @@ Gets the frequencies of unique subgraphs of size k appearing in G.
 
 `norm` currently just divides the counts of each motif by the total number of motifs appearing in the graph.
 
-Coloured graph support is a work in progress.
+Coloured graph support is available in [ColoredGraphs.jl](https://github.com/bovine3dom/ColoredGraphs.jl).
 
 # Backends
 

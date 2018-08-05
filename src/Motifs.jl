@@ -82,7 +82,7 @@ module Motifs
                     g, map = lg.induced_subgraph(G,temp)
                     egoid = findfirst(x->x==1,map)
                     try
-                        k = canonfunc(g;egonet=true,egoid)
+                        k = canonfunc(g;egonet=true,egoid=egoid)
                         # Get a bounds error here, but if you catch the throw,
                         # ColoredGraphs.nauty() on it works fine.
                         # : S
